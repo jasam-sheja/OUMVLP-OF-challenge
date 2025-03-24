@@ -1,6 +1,8 @@
 # OUMVLP-OF-challenge
 This is the official starter kit for the [OUMVLP-OF challenge](https://of.iapr-tc4.org/).
 
+![](https://miniodis-rproxy.lisn.upsaclay.fr/coda-v2-prod-public/logos/2025-02-27-1740631823/57db00e2427b/key_fig.png)
+
 ## Test Dataset Preparation
 No training samples will be provided. The participants can use any external dataset, such as CASIA-B and GREW (Gait-in-Wild), etc., to generate optical flow maps and train their models.
 
