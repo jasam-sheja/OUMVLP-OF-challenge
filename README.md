@@ -3,6 +3,44 @@ This is the official starter kit for the [OUMVLP-OF challenge](https://of.iapr-t
 
 ![](https://miniodis-rproxy.lisn.upsaclay.fr/coda-v2-prod-public/logos/2025-02-27-1740631823/57db00e2427b/key_fig.png)
 
+## Optical Flow Generation
+To generate your own training optical flow data, you can use the following functions in `compute_OF_RAFT.py`:
+
+```python
+import compute_OF_RAFT as raft
+
+
+raft.apply_video_files # to apply optical flow on video files
+# Args:
+#   - rgb_file: path to the RGB video file
+#   - silhouette_file: path to the silhouette video file
+#   - model: model to use for optical flow computation (default: raft)
+# Returns:
+#   - flow: optical flow images as numpy array
+
+raft.apply_image_folders # to apply optical flow on image folders
+# Args:
+#   - rgb_folder: path to the RGB image folder
+#   - silhouette_folder: path to the silhouette image folder
+#   - model: model to use for optical flow computation (default: raft)
+# Returns:
+#   - flow: optical flow images as numpy array
+```
+
+To save the optical flow data, you can use the following function:
+
+```python
+import data_io
+data_io.write_vid(flow, output_file)
+```
+
+To try the code on your own data, you run the following command:
+
+```bash
+python compute_OF_RAFT.py --video_file <path-to-rgb-video-file> --silhouette_file <path-to-sil-video-file> --output_file <path-to-output-optical-flow-video-file>
+```
+
+**Note**: Please make sure that both the input rgbs and silhouettes are synchronized and have the same number of frames.
 ## Test Dataset Preparation
 No training samples will be provided. The participants can use any external dataset, such as CASIA-B and GREW (Gait-in-Wild), etc., to generate optical flow maps and train their models.
 

@@ -61,11 +61,11 @@ def write_vid(
         output_params: List of additional ffmpeg output parameters.
         **kwargs: Additional parameters for imageio.v3.imwrite.
     """
-    _output_params = ["-qp", "0", "-preset", "veryslow", "-pix_fmt", "bgr24"]
+    _output_params = ["-qp", "0", "-preset", "ultrafast"]
     if output_params is not None:
         _output_params += output_params
     return iio.imwrite(
-        file, imgvol, codec="libx264rgb", fps=1, output_params=_output_params, **kwargs
+        file, imgvol, codec="libx264rgb", pixelformat='bgr24', fps=1, output_params=_output_params, **kwargs
     )
 
 
