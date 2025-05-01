@@ -9,7 +9,7 @@ The author of this code snippet is Mohamad Ammar Alsherfawi Aljazaerly (https://
 
 import json
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import imageio.v3 as iio
 import numpy as np
@@ -65,7 +65,13 @@ def write_vid(
     if output_params is not None:
         _output_params += output_params
     return iio.imwrite(
-        file, imgvol, codec="libx264rgb", pixelformat='bgr24', fps=1, output_params=_output_params, **kwargs
+        file,
+        imgvol,
+        codec="libx264rgb",
+        pixelformat="bgr24",
+        fps=1,
+        output_params=_output_params,
+        **kwargs,
     )
 
 
@@ -80,6 +86,80 @@ def read_vid(file: str | Path) -> np.ndarray:
         A NumPy array with shape (#frames, height, width, channels) and dtype uint8.
     """
     return iio.imread(file)
+
+
+def get_identification_gallery_files(
+    phase: str,
+    version: str,
+) -> List[Tuple[str, str]]:
+    """
+    Get the gallery files for the identification task.
+    Args:
+        phase: The phase of the task (phase1 or phase2).
+    Returns:
+        A list of name, gallery files.
+    """
+    assert phase in ["phase1", "phase2"], f"Invalid phase: {phase}"
+    assert version in ["v1", "v2"], f"Invalid version: {version}"
+
+    meta = Path(__file__).parent.joinpath("meta")
+    indexing = meta.joinpath(f"{phase}_index_mapping.json")
+    mapping = json.loads(indexing.read_text())
+    gallery_files = [
+        (f, f"OUMVLP_OF_{version.upper()}_IJCB2025OFcompetition/{f}")
+        for f in mapping["gallery"].keys()
+    ]
+    return gallery_files
+
+
+def get_identification_probe_files(
+    phase: str,
+    version: str,
+) -> List[str]:
+    """
+    Get the probe files for the identification task.
+    Args:
+        phase: The phase of the task (phase1 or phase2).
+    Returns:
+        A list of probe files.
+    """
+    assert phase in ["phase1", "phase2"], f"Invalid phase: {phase}"
+    assert version in ["v1", "v2"], f"Invalid version: {version}"
+
+    meta = Path(__file__).parent.joinpath("meta")
+    indexing = meta.joinpath(f"{phase}_index_mapping.json")
+    mapping = json.loads(indexing.read_text())
+    probe_files = [
+        (f, f"OUMVLP_OF_{version.upper()}_IJCB2025OFcompetition/{f}")
+        for f in mapping["probe"].keys()
+    ]
+    return probe_files
+
+
+def get_verification_gallery_files(
+    phase: str,
+    version: str,
+) -> List[str]:
+    meta = Path(__file__).parent.joinpath("meta")
+    gallery = json.loads(
+        meta.joinpath(f"{phase}_gallery_verification.json").read_text()
+    )
+    gallery_files = [
+        (f, f"OUMVLP_OF_{version.upper()}_IJCB2025OFcompetition/{f}") for f in gallery
+    ]
+    return gallery_files
+
+
+def get_verification_probe_files(
+    phase: str,
+    version: str,
+) -> List[str]:
+    meta = Path(__file__).parent.joinpath("meta")
+    probe = json.loads(meta.joinpath(f"{phase}_probe_verification.json").read_text())
+    probe_files = [
+        (f, f"OUMVLP_OF_{version.upper()}_IJCB2025OFcompetition/{f}") for f in probe
+    ]
+    return probe_files
 
 
 def save_identification_submission(
@@ -112,11 +192,12 @@ def save_identification_submission(
 
 
 class VerificationSubmission:
-    '''
+    """
     Verification submission builder.
     In order to create a verification submission without worrying about the order of the probe and gallery pairs,
     use this class to set the distance between a probe and gallery pairs.
-    '''
+    """
+
     def __init__(self, phase: str):
         meta = Path(__file__).parent.joinpath("meta")
         self.probe_ver: List[str] = json.loads(meta.joinpath(f"{phase}_probe_verification.json").read_text())  # type: ignore
@@ -170,4 +251,4 @@ def save_verification_submission(
     ), f"Invalid shape for pairwise distance: {dist.shape}"
     if np.isnan(dist).any():
         raise ValueError("Invalid pairwise distance: NaN")
-    np.savez_compressed(output_dir.joinpath(f"ver-{version}.npz"), dist=dist)
+    np.savez_compressed(output_dir.joinpath(f"dist-{version}.npz"), dist=dist)

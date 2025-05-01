@@ -6,20 +6,20 @@ This is the official starter kit for the [OUMVLP-OF challenge](https://of.iapr-t
 
 - [OUMVLP-OF-challenge](#oumvlp-of-challenge)
   - [Dataset Preparation](#dataset-preparation)
-    - [Optical Flow Generation](#optical-flow-generation)
-    - [Test Dataset Preparation](#test-dataset-preparation)
-  - [Optical Flow Data](#optical-flow-data)
+    - [Optical Flow Generation](#optical-flow-generation): Use this to generate your own optical flow data from RGB capture of subjects and their binary segmentation (silhouette).
+    - [Test Dataset Preparation](#test-dataset-preparation): Use this to prepare the preprocessed dataset for the challenge.
+  - [Optical Flow Data](#optical-flow-data): Use this to read the video files of optical flow videos.
   - [Submission](#submission)
-    - [Aided Submission](#aided-submission)
-    - [Manual Submission](#manual-submission)
+    - [Submission Preparation](#submission-preparation): Use this to save the submission files (recommended).
+    - [In Case of Manual Submission](#in-case-of-manual-submission): Use this to create the submission files manually.
 
 ## Dataset Preparation
 To train your model you need to prepare a dataset with optical flow data. This competition **does not** provide any training samples. You can use any external dataset, such as CASIA-B and GREW (Gait-in-Wild), etc., to generate optical flow maps and train your models.
 
-The following sections describe how to generate the optical flow data from rgb and silhouette videos and how to prepare the test dataset.
+The following sections describe how to generate the optical flow data from your rgb and silhouette videos and how to prepare the test dataset.
 
 ### Optical Flow Generation
-To generate your own training optical flow data, you can use the following functions in `compute_OF_RAFT.py`:
+To generate your own training optical flow data from RGB capture of subjects and their binary segmentation (silhouette), you can use the following functions in `compute_OF_RAFT.py`:
 
 ```python
 import compute_OF_RAFT as raft
@@ -54,6 +54,7 @@ To try the code on your own data, you run the following command:
 ```bash
 python compute_OF_RAFT.py --video_file <path-to-rgb-video-file> --silhouette_file <path-to-sil-video-file> --output_file <path-to-output-optical-flow-video-file>
 ```
+Please note that appying the above command is not recommended for large datasets. It is recommended to use the above functions in your own dataset preparation code.
 
 **Note**: Please make sure that both the input rgbs and silhouettes are synchronized and have the same number of frames.
 
@@ -63,49 +64,46 @@ No training samples will be provided. The participants can use any external data
 After you get permission, you can download the dataset. Then, you can use the following code to extract the data.
 
 ```bash
+git clone https://github.com/jasam-sheja/OUMVLP-OF-challenge.git
+cd OUMVLP_OF-challenge
+# move the downloaded zip files to the root directory
+# Gallery: Use {password} sent to you via email
 unzip OUMVLP_OF_V1_IJCB2025OFcompetition-data-gallery.zip
 unzip OUMVLP_OF_V2_IJCB2025OFcompetition-data-gallery.zip
-mkdir meta
-# Phase 1
+# Phase 1: Use {password} sent to you via email
 unzip OUMVLP_OF_V1_IJCB2025OFcompetition-data-probe-phase-1.zip
-mv OUMVLP_OF_V1_IJCB2025OFcompetition/data-probe-phase-1 OUMVLP_OF_V1_IJCB2025OFcompetition/data-probe
 unzip OUMVLP_OF_V2_IJCB2025OFcompetition-data-probe-phase-1.zip
-mv OUMVLP_OF_V2_IJCB2025OFcompetition/data-probe-phase-1 OUMVLP_OF_V2_IJCB2025OFcompetition/data-probe
 unzip phase_1_meta.zip
-mv phase1_gallery_verification.json meta/gallery_verification.json
-mv phase1_probe_verification.json meta/probe_verification.json
-# Phase 2
+# Phase 2: Use {password} sent to you via email
 unzip OUMVLP_OF_V1_IJCB2025OFcompetition-data-probe-phase-2.zip
-mv OUMVLP_OF_V1_IJCB2025OFcompetition/data-probe-phase-2 OUMVLP_OF_V1_IJCB2025OFcompetition/data-probe
 unzip OUMVLP_OF_V2_IJCB2025OFcompetition-data-probe-phase-2.zip
-mv OUMVLP_OF_V2_IJCB2025OFcompetition/data-probe-phase-2 OUMVLP_OF_V2_IJCB2025OFcompetition/data-probe
 unzip phase_2_meta.zip
-mv phase2_gallery_verification.json meta/gallery_verification.json
-mv phase2_probe_verification.json meta/probe_verification.json
 ```
+
 The dataset will have the following structure:
 ```
 OUMVLP_OF_V1_IJCB2025OFcompetition-data-gallery
     | - data-gallery
-        | - seq_0001.mp4
-        | - seq_0002.mp4
+        | - seq_0001.mp4        (Optical flow video in RGB format)
+        | - seq_0002.mp4        (Optical flow video in RGB format)
         | - ...
-    | - data-probe
-        | - seq_0001.mp4
-        | - seq_0002.mp4
+    | - data-probe-phase-[1|2]
+        | - seq_0001.mp4        (Optical flow video in RGB format)
+        | - seq_0002.mp4        (Optical flow video in RGB format)
         | - ...
 OUMVLP_OF_V2_IJCB2025OFcompetition-data-gallery
     | - data-gallery
-        | - seq_0001.mp4
-        | - seq_0002.mp4
+        | - seq_0001.mp4        (Optical flow video in RGB format)
+        | - seq_0002.mp4        (Optical flow video in RGB format)
         | - ...
-    | - data-probe
-        | - seq_0001.mp4
-        | - seq_0002.mp4
+    | - data-probe-phase-[1|2]
+        | - seq_0001.mp4        (Optical flow video in RGB format)
+        | - seq_0002.mp4        (Optical flow video in RGB format)
         | - ...
 meta
-    | - gallery_verification.json
-    | - probe_verification.json
+    | - phase[1|2]_gallery_verification.json    (Distance matrix column index and its corresponding gallery file)
+    | - probe[1|2]_probe_verification.json      (Distance matrix row index and its corresponding probe file)
+    | - probe[1|2]_index_mapping.json           (Probe and gallery file to integer mapping)
 ```
 
 ## Optical Flow Data
@@ -124,9 +122,10 @@ When creating the submission zip file it should be so when extracted the files a
 
 **Note**: For a valid submssion either both files of version 1, both files of version 2 should be submitted, or all four files should be submitted.
 
-### Aided Submission
-To aid in the submission, we provide a functions to save the files. You can use the following code to save the files.
+### Submission Preparation
+To prepare your submission, we provide the following helper functions to save the files. 
 
+General use of the helper functions:
 ```python
 # unpack the meta files into meta directory before running this code
 import data_io
@@ -147,7 +146,52 @@ distance_builder.save('path/to/submission', version='v1')
 ```
 **Note**: The submission files should be complete and the provided functions checks for the completeness of the submission.
 
-### Manual Submission
+Example of a dummy submission:
+```python
+import os
+import random
+
+import data_io # helper functions
+
+
+phase = "phase1"  # phase1 or phase2
+submission_folder = "submission"  # output directory
+os.makedirs(submission_folder, exist_ok=False)
+for version in ["v1", "v2"]:
+    # identification submission
+    gallery, gallery_file = zip(
+        *data_io.get_identification_gallery_files(phase=phase, version=version)
+    )
+    matches = {} # probe matches
+    for probe, probe_file in data_io.get_identification_probe_files(
+        phase=phase, version=version
+    ):
+        matches[probe] = [random.choice(gallery) for _ in range(14)] # replace with your own model output
+    data_io.save_identification_submission(
+        matches, output_dir=submission_folder, phase=phase, version=version
+    )
+    # verification submission
+    vsubmission = data_io.VerificationSubmission(phase=phase)
+    for probe, _ in data_io.get_verification_probe_files(
+        phase=phase, version=version
+    ):
+        for gallery, _ in data_io.get_verification_gallery_files(
+            phase=phase, version=version
+        ):
+            vsubmission.set_distance(
+                probe=probe,
+                gallery=gallery,
+                distance=random.uniform(0, 1), # replace with your own model output
+            )
+    vsubmission.save(
+        output_dir=submission_folder,
+        version=version,
+    )
+os.system(f"zip -j {submission_folder}.zip {submission_folder}/*")
+# then submit submission.zip to the competition
+```
+
+### In Case of Manual Submission
 If you decided to create the submission files manually, you must follow the following format:
 
 #### **ranking-v1.npz** / **ranking-v2.npz**:
